@@ -1,0 +1,8 @@
+{
+    "glitch-help-instructions": "For a custom domain, change the 'url' parameter from 'glitch-default' to your domain _without_ a traling slash, like 'https://www.example.com'",
+    "title": "EL MIXTO - RESTAURANT",
+    "description": "Restaurant de comida criolla, chifa y platos a la carta, exelente sason y a buen precio",
+    "url": "localhost",
+    "image": "https://elmixto.sytes.net/imagenes/logo_chef.png"
+  }
+  
