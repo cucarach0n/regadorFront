@@ -105,10 +105,44 @@ async function obtenerFoto(){
       console.log(error);
   }
 }
+
+async function regar(){
+  try {
+      /*let data = {"nombreProducto":'ensalada de palta',
+                  "precio":null,
+                  "imagenProducto":null,
+                  "tipoProducto":1};*/
+      const response = await fetch(
+        "http://192.168.1.13:8000/regador/activar/",
+        {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }/*,
+        body: JSON.stringify(data)*/
+        }
+      );
+  
+      const respuesta = await response.json();
+      //console.log(respuesta);
+      return respuesta;
+  } catch (error) {
+      console.log(error);
+  }
+}
+fastify.get("/activar", async function (request, reply) {
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "GET");
+  
+  data = await regar();
+  //console.log(data);
+  reply
+    .code(200)
+    .headers({'Content-Type': 'application/json',"Access-Control-Allow-Origin": "*","Access-Control-Allow-Methods":"GET"})
+    .send(data)
+});
 fastify.get("/dataSensor", async function (request, reply) {
   reply.header("Access-Control-Allow-Origin", "*");
   reply.header("Access-Control-Allow-Methods", "GET");
-  console.log(request.query.dni)
+  
   data = await sensor();
   //console.log(data);
   reply
@@ -119,7 +153,7 @@ fastify.get("/dataSensor", async function (request, reply) {
 fastify.get("/getFoto", async function (request, reply) {
   reply.header("Access-Control-Allow-Origin", "*");
   reply.header("Access-Control-Allow-Methods", "GET");
-  console.log(request.query.dni)
+  
   data = await obtenerFoto();
   //console.log(data);
   reply

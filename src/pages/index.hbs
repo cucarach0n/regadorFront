@@ -91,11 +91,37 @@
                       <span id="lblCantidad">
                         0.5L
                       </span>
+                      <div class="progress">
+                        <div id="progresAgua" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Activando regador</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <div id="txtMensaje">
+              
+            </div>
+            <div class="spinner-border text-primary" role="status" id="spinerRegar">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div class="modal-footer" id="btnClose" style="display: none;">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -128,15 +154,69 @@
             console.log(error);
         }
       }
+      async function calcularPorcentajeAgua(distanciActual){
+        
+        var porcentaje = 0;
+        var distanciaMaxima = 8;
+        var diferenciaDistancia = distanciaMaxima - distanciActual;
+        porcentaje = (diferenciaDistancia * 100) / 7.5;
+        if(porcentaje < 0){
+          porcentaje = 0;
+        }
+        else if(porcentaje > 100){
+          porcentaje = 100;
+        }
+        return porcentaje;
+      }
       async function callSensor(){
         data = await dataSensor();
-        //console.log(data);
+        console.log(data);
         document.getElementById("lblTemperatura").innerHTML = data.temperatura + "°";
         document.getElementById("lblHumedad").innerHTML = data.humedad + "%";
         document.getElementById("lblEstado").innerHTML = data.tierra;
-        document.getElementById("lblCantidad").innerHTML = data.cantidadAgua + "L";
+        var porcentaje = await calcularPorcentajeAgua(data.cantidadAgua);
+        document.getElementById("lblCantidad").innerHTML = Math.round(porcentaje) + "%";
+        document.getElementById("progresAgua").setAttribute("aria-valuenow", Math.round(porcentaje));
+        document.getElementById("progresAgua").style.width = Math.round(porcentaje) + "%";
+        
       }
       setInterval(callSensor, 2000);
+      var spinerRegar = document.getElementById("spinerRegar");
+      var btnClose = document.getElementById("btnClose");
+      var txtMensaje = document.getElementById("txtMensaje");
+      const modalAlerta = document.getElementById('exampleModal')
+      modalAlerta.addEventListener('hidden.bs.modal', event => {
+        spinerRegar.style.display = "";
+        txtMensaje.innerHTML = "";
+        btnClose.style.display = "none";
+      })
+      
+      document.getElementById("btnRegar").addEventListener("click",async function(){
+        var myModal = new bootstrap.Modal(document.getElementById("exampleModal"), {});
+        
+        myModal.show();
+        try {
+            const response = await fetch(
+              "http://192.168.1.20:8001/activar",
+              {
+              method: "GET",
+              headers: { "Content-Type": "application/json" }/*,
+              body: JSON.stringify(data)*/
+              }
+            );
+        
+            const respuesta = await response.json();
+            console.log(respuesta);
+            spinerRegar.style.display = "none";
+            txtMensaje.innerHTML = respuesta.mensaje;
+            btnClose.style.display = "";
+
+            //return respuesta;
+        } catch (error) {
+            console.log(error);
+        }
+      });
     </script>
+    
   </body>
 </html>
